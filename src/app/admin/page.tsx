@@ -303,25 +303,46 @@ export default function AdminDashboard() {
 
     setUploadingImage(true);
     try {
-      const fileExt = file.name.split(".").pop();
+      const bucketName = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET || "saree-images";
+      const fileExt = file.name.split(".").pop() || "jpg";
       const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
       const filePath = `products/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("saree-images")
-        .upload(filePath, file);
+      const isStorageConfigured = Boolean(
+        process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      );
 
-      if (uploadError) {
-        throw new Error(uploadError.message);
+      if (isStorageConfigured) {
+        const { error: uploadError } = await supabase.storage.from(bucketName).upload(filePath, file);
+
+        if (!uploadError) {
+          const { data } = supabase.storage.from(bucketName).getPublicUrl(filePath);
+          setProductForm((prev) => ({ ...prev, image: data.publicUrl }));
+          addToast("Saree image uploaded successfully!", "success");
+          return;
+        }
+
+        console.warn("Supabase storage upload unavailable, using a local data URL instead:", uploadError);
       }
 
-      const { data } = supabase.storage.from("saree-images").getPublicUrl(filePath);
-      
-      setProductForm((prev) => ({ ...prev, image: data.publicUrl }));
-      addToast("Saree image uploaded successfully!", "success");
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error("Failed to read the selected image."));
+        reader.readAsDataURL(file);
+      });
+
+      setProductForm((prev) => ({ ...prev, image: dataUrl }));
+      addToast(
+        "Supabase storage is not available for this project, so the image was embedded locally for this product. Save the product to keep it.",
+        "info"
+      );
     } catch (err: any) {
       console.error("Image upload failed:", err);
-      addToast(`Image upload failed: ${err.message}. Creating bucket automatically is sometimes restricted; you can paste a local image path like /images/products/product-01.jpeg instead.`, "error");
+      addToast(
+        `Image upload failed: ${err.message}. You can still paste a local image path like /images/products/product-01.jpeg instead.`,
+        "error"
+      );
     } finally {
       setUploadingImage(false);
     }
