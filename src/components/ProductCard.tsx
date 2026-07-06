@@ -23,6 +23,11 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <article className="group overflow-hidden rounded-2xl border border-ivory-dark bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card">
       <div className="relative aspect-[3/4] overflow-hidden">
+      {!product.is_available && (
+  <div className="absolute top-2 left-2 z-10 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+    Sold Out
+  </div>
+)}
         <Image
           src={imageSrc}
           alt="Handpainted saree"
@@ -84,7 +89,8 @@ export function ProductCard({ product }: ProductCardProps) {
 
         <button
           onClick={handleAction}
-          className="w-full rounded-xl bg-maroon py-3 text-sm font-semibold text-white transition-all hover:bg-maroon-dark"
+          disabled={!product.is_available}
+          className="w-full rounded-xl bg-maroon py-3 text-sm font-semibold text-white transition-all hover:bg-maroon-dark disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {actionMode === "buy" ? "Buy Now" : "Add to Cart"}
         </button>
