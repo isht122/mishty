@@ -11,10 +11,11 @@ import { CartDrawer } from "@/components/CartDrawer";
 import { SuccessToast } from "@/components/SuccessToast";
 
 const navLinks = [
-  { href: "#home", label: "Home" },
-  { href: "#menu", label: "Menu" },
-  { href: "#testimonials", label: "Testimonials" },
-  { href: "#contact", label: "Contact" },
+  { href: "/#home", label: "Home" },
+  { href: "/about", label: "About" },
+  { href: "/#menu", label: "Menu" },
+  { href: "/#testimonials", label: "Testimonials" },
+  { href: "/#contact", label: "Contact" },
 ];
 
 export function Navbar() {
@@ -45,7 +46,7 @@ export function Navbar() {
       <header className="fixed inset-x-0 top-0 z-50 border-b border-ivory-dark/60 bg-ivory/90 backdrop-blur-md">
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link
-            href="#home"
+            href="/#home"
             className="section-heading text-lg font-semibold tracking-tight text-maroon sm:text-xl"
           >
             Renuka&apos;s Art Collection
